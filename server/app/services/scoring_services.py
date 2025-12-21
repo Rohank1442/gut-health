@@ -1,19 +1,57 @@
-from typing import Dict, List, Any
+"""
+Gut health scoring calculations
+"""
 
-def calculate_scores(all_entries: List[Dict]) -> Dict[str, int]:
-    """Calculate all gut health scores from food entries"""
+from typing import Dict, List, Any
+from app.core.config import settings
+
+
+def calculate_gut_health_scores(food_entries: List[Dict[str, Any]]) -> Dict[str, int]:
+    """
+    Calculate all 6 gut health metrics from food entries
+    
+    Args:
+        food_entries: List of food entry records with llm_analysis
+        
+    Returns:
+        Dict containing all scores:
+        {
+            "fiber_grams": int,
+            "fiber_score": int (0-100),
+            "diversity_score": int (0-100),
+            "processed_score": int (0-100),
+            "probiotic_score": int (0-100),
+            "digestive_score": int (0-100),
+            "gut_score": int (0-100)
+        }
+    """
+    
+    if not food_entries:
+        return {
+            "fiber_grams": 0,
+            "fiber_score": 0,
+            "diversity_score": 0,
+            "processed_score": 0,
+            "probiotic_score": 0,
+            "digestive_score": 0,
+            "gut_score": 0
+        }
     
     # Extract all LLM analyses
-    analyses = [entry.get('llm_analysis', {}) for entry in all_entries]
+    analyses = [entry.get('llm_analysis', {}) for entry in food_entries]
     
     # 1. Fiber Score (0-100)
     total_fiber = sum(a.get('fiber_grams', 0) for a in analyses)
-    fiber_score = min(100, int((total_fiber / 30) * 100))  # 30g = 100%
+    fiber_score = min(100, int((total_fiber / settings.TARGET_FIBER_GRAMS) * 100))
     
     # 2. Diversity Score (0-100)
     all_categories = set()
     for a in analyses:
-        all_categories.update(a.get('food_categories', []))
+        categories = a.get('food_categories', [])
+        if isinstance(categories, list):
+            all_categories.update(categories)
+    # Remove 'unknown' from count
+    all_categories.discard('unknown')
     diversity_score = min(100, len(all_categories) * 15)  # ~7 categories = 100%
     
     # 3. Processed Score (0-100) - HIGHER is BETTER (less processed)
@@ -32,21 +70,16 @@ def calculate_scores(all_entries: List[Dict]) -> Dict[str, int]:
     digestive_score = int(sum(complexity_map.get(c, 70) for c in complexities) / len(complexities)) if complexities else 70
     
     # 6. Overall Gut Score (weighted average)
-    weights = {
-        'fiber': 0.25,
-        'diversity': 0.25,
-        'processed': 0.20,
-        'probiotic': 0.15,
-        'digestive': 0.15
-    }
-    
     gut_score = int(
-        fiber_score * weights['fiber'] +
-        diversity_score * weights['diversity'] +
-        processed_score * weights['processed'] +
-        probiotic_score * weights['probiotic'] +
-        digestive_score * weights['digestive']
+        fiber_score * settings.WEIGHT_FIBER +
+        diversity_score * settings.WEIGHT_DIVERSITY +
+        processed_score * settings.WEIGHT_PROCESSED +
+        probiotic_score * settings.WEIGHT_PROBIOTIC +
+        digestive_score * settings.WEIGHT_DIGESTIVE
     )
+    
+    # Ensure within bounds
+    gut_score = max(0, min(100, gut_score))
     
     return {
         'fiber_grams': total_fiber,
@@ -58,27 +91,15 @@ def calculate_scores(all_entries: List[Dict]) -> Dict[str, int]:
         'gut_score': gut_score
     }
 
-async def update_daily_summary(user_id: str, entry_date: date):
-    """Recalculate and update daily summary for a given date"""
+
+def determine_status(entry_count: int) -> str:
+    """
+    Determine if daily summary is partial or final
     
-    # Get all food entries for this date
-    result = supabase.table('food_entries').select('*').eq('user_id', user_id).eq('date', str(entry_date)).execute()
-    entries = result.data
-    
-    # Calculate scores
-    scores = calculate_scores(entries)
-    
-    # Determine status (3+ entries = final)
-    status = "final" if len(entries) >= 3 else "partial"
-    
-    # Upsert daily summary
-    summary_data = {
-        'user_id': user_id,
-        'date': str(entry_date),
-        **scores,
-        'updated_at': datetime.utcnow().isoformat()
-    }
-    
-    supabase.table('daily_gut_summary').upsert(summary_data).execute()
-    
-    return scores['gut_score'], status
+    Args:
+        entry_count: Number of food entries for the day
+        
+    Returns:
+        str: "partial" or "final"
+    """
+    return "final" if entry_count >= settings.FINAL_STATUS_MIN_ENTRIES else "partial"

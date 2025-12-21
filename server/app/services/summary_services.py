@@ -1,7 +1,6 @@
 from datetime import date
 from app.db.supabase import get_supabase_client
-from app.services.scoring_service import calculate_scores
-
+from app.services.scoring_services import calculate_gut_health_scores, determine_status
 """
 Daily summary aggregation and update service
 """
@@ -9,8 +8,6 @@ Daily summary aggregation and update service
 from datetime import date, datetime
 from typing import Tuple
 from app.db.supabase import get_supabase_client
-from app.services.scoring_service import calculate_gut_health_scores, determine_status
-
 
 async def update_daily_summary(user_id: str, entry_date: date) -> Tuple[int, str]:
     """

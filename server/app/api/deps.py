@@ -5,20 +5,25 @@ from app.db.supabase import get_supabase_client
 security = HTTPBearer()
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
-    """Verify JWT and return user_id"""
+    """
+    Validates Supabase JWT and returns user_id (UUID)
+    """
     try:
         supabase = get_supabase_client()
         user = supabase.auth.get_user(credentials.credentials)
+
         if not user or not user.user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
+                detail="Invalid or expired token",
             )
+
         return user.user.id
-    except Exception as e:
+
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e)
+            detail="Could not validate credentials",
         )

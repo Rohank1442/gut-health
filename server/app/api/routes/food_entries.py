@@ -1,8 +1,13 @@
-from fastapi import APIRouter, Depends
-from app.core.security import get_current_user
+from fastapi import APIRouter, Depends, HTTPException
+from app.db.supabase import get_supabase_client
+from app.api.deps import get_current_user
 from app.models.food_entry import FoodEntryCreate, FoodEntryUpdate
+from app.services.llm_services import parse_food_text
+from app.services.summary_services import update_daily_summary
+from datetime import date, datetime
 
 router = APIRouter()
+supabase = get_supabase_client()
 
 @router.post("")
 async def create_food_entry(
@@ -10,9 +15,9 @@ async def create_food_entry(
     user_id: str = Depends(get_current_user)
 ):
     """Add a new food entry"""
-
-    llm_analysis = await parse_food_with_llm(entry.food_text)
-    
+    print("Creating food entry")
+    llm_analysis = await parse_food_text(entry.food_text)
+    print("LLM analysis complete:", llm_analysis)
     # Insert food entry
     entry_data = {
         'user_id': user_id,
@@ -64,7 +69,7 @@ async def update_food_entry(
     entry_date = result.data[0]['date']
     
     # Parse new food text
-    llm_analysis = await parse_food_with_llm(update.food_text)
+    llm_analysis = await parse_food(update.food_text)
     
     # Update entry
     supabase.table('food_entries').update({
