@@ -22,7 +22,7 @@ async def create_food_entry(
     entry_data = {
         'user_id': user_id,
         'date': str(entry.date),
-        'time': str(entry.time) if entry.time else None,
+        'time': str(entry.time) if entry.time else datetime.now().time().isoformat(),
         'meal_type': entry.meal_type.value,
         'food_text': entry.food_text,
         'llm_analysis': llm_analysis
@@ -69,7 +69,7 @@ async def update_food_entry(
     entry_date = result.data[0]['date']
     
     # Parse new food text
-    llm_analysis = await parse_food(update.food_text)
+    llm_analysis = await parse_food_text(update.food_text)
     
     # Update entry
     supabase.table('food_entries').update({

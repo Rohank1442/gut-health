@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends
 from app.api.deps import get_current_user
+from app.db.supabase import get_supabase_client
+from datetime import date, timedelta
 
 router = APIRouter()
+supabase = get_supabase_client()
 
 @router.get("/daily-summary")
 async def get_daily_summary(
@@ -46,40 +49,16 @@ async def get_daily_summary(
         "status": status
     }
 
-@router.get("/calendar-summary")
-async def get_calendar_summary(
-    month: str,
-    user_id: str = Depends(get_current_user)
-):
-    """Get monthly calendar"""
-    # Parse month
-    year, month_num = map(int, month.split('-'))
-    start_date = date(year, month_num, 1)
-    
-    # Calculate end date
-    if month_num == 12:
-        end_date = date(year + 1, 1, 1)
-    else:
-        end_date = date(year, month_num + 1, 1)
-    
-    # Query summaries
-    result = supabase.table('daily_gut_summary').select('date, gut_score').eq('user_id', user_id).gte('date', str(start_date)).lt('date', str(end_date)).order('date').execute()
-    
-    return {
-        "month": month,
-        "days": result.data
-    }
-
 @router.get("/weekly-summary")
 async def get_weekly_summary(
-    start: str,
+    start_date: date,
     user_id: str = Depends(get_current_user)
 ):
     """Get weekly trends"""
-    end_date = start + timedelta(days=7)
-    
-    result = supabase.table('daily_gut_summary').select('*').eq('user_id', user_id).gte('date', str(start)).lt('date', str(end_date)).execute()
-    
+    end_date = start_date + timedelta(days=7)
+
+    result = supabase.table('daily_gut_summary').select('*').eq('user_id', user_id).gte('date', str(start_date)).lt('date', str(end_date)).execute()
+
     if not result.data:
         return {
             "average_gut_score": 0,

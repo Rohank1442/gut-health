@@ -2,14 +2,14 @@
 LLM service for food parsing and tip generation
 """
 
-import openai
+from openai import OpenAI
 import json
 from typing import Dict, Any, List
 from app.core.config import settings
 
 
 # Initialize OpenAI
-openai.api_key = settings.OPENAI_API_KEY
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
 async def parse_food_text(food_text: str) -> Dict[str, Any]:
@@ -31,8 +31,8 @@ async def parse_food_text(food_text: str) -> Dict[str, Any]:
         }
     """
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = client.chat.completions.create(
+            model="gpt-4o",
             messages=[
                 {
                     "role": "system",
@@ -117,8 +117,8 @@ async def generate_daily_tips(
         List of 3 actionable tip strings
     """
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = client.chat.completions.create(
+            model="gpt-4o",
             messages=[
                 {
                     "role": "system",

@@ -58,7 +58,10 @@ async def update_daily_summary(user_id: str, entry_date: date) -> Tuple[int, str
     }
     
     # Upsert (insert or update) daily summary
-    supabase.table('daily_gut_summary').upsert(summary_data).execute()
+    supabase.table('daily_gut_summary').upsert(
+        summary_data,
+        on_conflict='user_id,date'
+        ).execute()
     
     return scores['gut_score'], status
 
