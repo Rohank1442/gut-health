@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     
     # CORS Configuration
-    CORS_ORIGINS: List[str] = ["http://localhost:3000"]
+    CORS_ORIGINS: List[str] = ["http://localhost:8080", "http://localhost:5173", "http://127.0.0.1:8080"]
     
     # Scoring Weights (configurable)
     WEIGHT_FIBER: float = 0.25
