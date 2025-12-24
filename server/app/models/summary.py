@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class DailySummaryStats(BaseModel):
-    fiber_grams: int
+    fiber_grams: float
     fiber_score: int
     diversity_score: int
     processed_score: int

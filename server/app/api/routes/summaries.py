@@ -73,7 +73,7 @@ async def get_weekly_summary(
         }
     
     scores = [d['gut_score'] for d in result.data]
-    avg_score = sum(scores) // len(scores)
+    avg_score = sum(scores) // len(scores) if scores else 0
     
     best = max(result.data, key=lambda x: x['gut_score'])
     worst = min(result.data, key=lambda x: x['gut_score'])

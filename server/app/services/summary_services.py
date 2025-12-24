@@ -43,17 +43,17 @@ async def update_daily_summary(user_id: str, entry_date: date) -> Tuple[int, str
     # Determine status
     status = determine_status(len(entries))
     
-    # Prepare summary data
+    # Prepare summary data in app/services/summary_services.py
     summary_data = {
         'user_id': user_id,
         'date': str(entry_date),
-        'fiber_grams': scores['fiber_grams'],
-        'fiber_score': scores['fiber_score'],
-        'diversity_score': scores['diversity_score'],
-        'processed_score': scores['processed_score'],
-        'probiotic_score': scores['probiotic_score'],
-        'digestive_score': scores['digestive_score'],
-        'gut_score': scores['gut_score'],
+        'fiber_grams': float(scores['fiber_grams']),
+        'fiber_score': int(round(scores['fiber_score'])),
+        'diversity_score': int(round(scores['diversity_score'])),
+        'processed_score': int(round(scores['processed_score'])),
+        'probiotic_score': int(round(scores['probiotic_score'])),
+        'digestive_score': int(round(scores['digestive_score'])),
+        'gut_score': int(round(scores['gut_score'])),
         'updated_at': datetime.utcnow().isoformat()
     }
     
@@ -63,7 +63,7 @@ async def update_daily_summary(user_id: str, entry_date: date) -> Tuple[int, str
         on_conflict='user_id,date'
         ).execute()
     
-    return scores['gut_score'], status
+    return int(round(scores['gut_score'])), status
 
 
 async def get_daily_summary(user_id: str, entry_date: date) -> dict:

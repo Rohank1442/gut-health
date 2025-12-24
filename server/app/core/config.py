@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str
     
     # OpenAI Configuration
-    OPENAI_API_KEY: str
+    GEMINI_API_KEY: str
     
     # Server Configuration
     HOST: str = "0.0.0.0"
