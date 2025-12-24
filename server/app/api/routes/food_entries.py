@@ -9,7 +9,7 @@ from datetime import date, datetime
 router = APIRouter()
 supabase = get_supabase_client()
 
-@router.post("/")
+@router.post("")
 async def create_food_entry(
     entry: FoodEntryCreate,
     user_id: str = Depends(get_current_user)

@@ -61,6 +61,10 @@ export interface WeeklySummaryResponse {
   worst_day: string | null;
   fiber_trend: "improving" | "stable" | "declining";
   processed_trend: "improving" | "stable" | "declining";
+  start_date: string;
+  end_date: string;
+  trend: "improving" | "stable" | "declining"; 
+  daily_scores: { date: string; gut_score: number }[]; 
 }
 
 export interface TipsLogResponse {

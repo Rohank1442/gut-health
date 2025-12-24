@@ -15,7 +15,7 @@ async def generate_tips(
 ):
     # 1. Fetch the stats automatically from the daily_summaries table
     summary_res = supabase.table('daily_gut_summary') \
-        .select('stats') \
+        .select('fiber_score, diversity_score, processed_score, probiotic_score, digestive_score') \
         .eq('user_id', user_id) \
         .eq('date', date) \
         .execute()
@@ -23,15 +23,15 @@ async def generate_tips(
     if not summary_res.data:
         raise HTTPException(status_code=400, detail="Log food first to generate tips.")
 
-    stats = summary_res.data[0]['stats']
+    data = summary_res.data[0]
 
     # 2. Pass those stats to the LLM
     tips = await generate_daily_tips(
-        fiber_score=stats.get('fiber_score', 0),
-        diversity_score=stats.get('diversity_score', 0),
-        processed_score=stats.get('processed_score', 0),
-        probiotic_score=stats.get('probiotic_score', 0),
-        digestive_score=stats.get('digestive_score', 0)
+        fiber_score=data.get('fiber_score', 0),
+        diversity_score=data.get('diversity_score', 0),
+        processed_score=data.get('processed_score', 0),
+        probiotic_score=data.get('probiotic_score', 0),
+        digestive_score=data.get('digestive_score', 0)
     )
 
     # 3. Upsert into tips_log

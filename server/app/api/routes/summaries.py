@@ -51,17 +51,21 @@ async def get_daily_summary(
 
 @router.get("/weekly-summary")
 async def get_weekly_summary(
-    start_date: date,
+    start: date,
     user_id: str = Depends(get_current_user)
 ):
     """Get weekly trends"""
-    end_date = start_date + timedelta(days=7)
+    end_date = start + timedelta(days=7)
 
-    result = supabase.table('daily_gut_summary').select('*').eq('user_id', user_id).gte('date', str(start_date)).lt('date', str(end_date)).execute()
+    result = supabase.table('daily_gut_summary').select('*').eq('user_id', user_id).gte('date', str(start)).lt('date', str(end_date)).execute()
 
     if not result.data:
         return {
             "average_gut_score": 0,
+            "start_date": str(start),
+            "end_date": str(end_date),
+            "trend": "stable",
+            "daily_scores": [],
             "best_day": None,
             "worst_day": None,
             "fiber_trend": "stable",
@@ -91,7 +95,10 @@ async def get_weekly_summary(
         return "stable"
     
     return {
-        "average_gut_score": avg_score,
+        "average_gut_score": avg_score,"start_date": str(start),
+        "end_date": str(end_date),
+        "trend": get_trend(scores),
+        "daily_scores": result.data,
         "best_day": best['date'],
         "worst_day": worst['date'],
         "fiber_trend": get_trend(fiber_scores),
