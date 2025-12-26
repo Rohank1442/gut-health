@@ -12,3 +12,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+Allow: /auth
+Disallow: /dashboard
+Disallow: /weekly
+
+Sitemap: https://gut-health-gd2w.vercel.app/sitemap.xml

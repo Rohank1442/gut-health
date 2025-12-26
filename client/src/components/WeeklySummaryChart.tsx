@@ -82,7 +82,7 @@ export function WeeklySummaryChart({ data, isLoading }: WeeklySummaryChartProps)
           <div className="text-right">
             <div className="text-sm text-muted-foreground">Average</div>
             <div className="font-display text-2xl font-bold text-primary">
-              {Math.round(data.average_score)}
+              {Math.round(data.average_gut_score)}
             </div>
           </div>
           
@@ -125,7 +125,7 @@ export function WeeklySummaryChart({ data, isLoading }: WeeklySummaryChartProps)
               axisLine={{ stroke: "hsl(var(--border))" }}
             />
             <ReferenceLine 
-              y={data.average_score} 
+              y={data.average_gut_score} 
               stroke="hsl(var(--primary))" 
               strokeDasharray="5 5" 
               strokeOpacity={0.5}

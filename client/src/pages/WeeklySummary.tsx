@@ -121,7 +121,7 @@ export default function WeeklySummary() {
                 <div>
                   <p className="text-sm text-muted-foreground">Weekly Average</p>
                   <p className="font-display text-2xl font-bold text-primary">
-                    {Math.round(weeklySummary.average_score)}
+                    {Math.round(weeklySummary.average_gut_score)}  
                   </p>
                 </div>
               </div>

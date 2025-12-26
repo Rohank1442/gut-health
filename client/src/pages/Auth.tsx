@@ -28,7 +28,7 @@ export default function AuthPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated && !loading) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const validateForm = () => {

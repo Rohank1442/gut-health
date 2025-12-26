@@ -72,7 +72,7 @@ export function useAuth() {
       description: "Your account has been created successfully.",
     });
     
-    navigate("/");
+    navigate("/dashboard");
     return { error: null };
   }, [navigate, toast]);
 
@@ -100,7 +100,7 @@ export function useAuth() {
       description: "You have signed in successfully.",
     });
     
-    navigate("/");
+    navigate("/dashboard");
     return { error: null };
   }, [navigate, toast]);
 
@@ -108,7 +108,7 @@ export function useAuth() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/dashboard`,
       },
     });
     

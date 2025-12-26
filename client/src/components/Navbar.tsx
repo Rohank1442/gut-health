@@ -15,7 +15,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { to: "/", label: "Dashboard", icon: Leaf },
+    { to: "/dashboard", label: "Dashboard", icon: Leaf },
     { to: "/weekly", label: "Weekly Trends", icon: BarChart3 },
   ];
 
@@ -26,7 +26,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link 
-          to="/" 
+          to="/dashboard" 
           className="flex items-center gap-2 font-display text-xl font-semibold text-primary transition-colors hover:text-primary/80"
         >
           <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-hero">
